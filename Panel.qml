@@ -1526,15 +1526,21 @@ Panel {
     property color tone: root.accent
     property color badgeTone: root.dim
     readonly property bool showCores: !!(paint && Array.isArray(paint.cells) && paint.cells.length > 0)
+    readonly property bool showHistory: bar < 0 && Array.isArray(history) && history.length > 0
     signal activated(int delta)
 
-    implicitHeight: Style.space(tall ? 138 : 112)
+    implicitHeight: Math.max(Style.space(tall ? 138 : 112),
+                             cardContent.implicitHeight + 2 * Style.spacing.lg
+                             + (showHistory ? graph.height + graphCaption.implicitHeight + Style.spacing.xxs : 0))
     color: cardClick.containsMouse ? Style.hoverFillFor(root.foreground, root.accent) : Style.normalFillFor(root.foreground, root.accent)
     borderSpec: Border.controlSpec("normal", root.foreground, root.accent)
     radius: Style.cornerRadius
 
     Column {
-      anchors.fill: parent
+      id: cardContent
+      anchors.top: parent.top
+      anchors.left: parent.left
+      anchors.right: parent.right
       anchors.margins: Style.spacing.lg
       spacing: Style.spacing.xxs
 
@@ -1610,7 +1616,7 @@ Panel {
     }
 
     Sparkline {
-      visible: metricCard.bar < 0 && Array.isArray(history) && history.length > 0
+      visible: metricCard.showHistory
       anchors.left: parent.left
       anchors.right: parent.right
       anchors.bottom: parent.bottom
